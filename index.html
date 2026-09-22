@@ -1603,8 +1603,8 @@
                 <div class="pi-val" id="profileGender">載入中…</div>
               </div>
               <div class="profile-item">
-                <div class="pi-label">出生年月日</div>
-                <div class="pi-val" id="profileBirth">載入中…</div>
+                <div class="pi-label">年紀</div>
+                <div class="pi-val" id="profileAge">載入中…</div>
               </div>
               <div class="profile-item">
                 <div class="pi-label">檢測日期</div>
@@ -2291,6 +2291,20 @@
         return `${y}.${m}.${d}`;
       }
 
+      /** 依出生時間戳計算實歲：若今年生日尚未到，年齡再減 1 */
+      function getAge(birthMs) {
+        const birthDate = new Date(Number(birthMs));
+        if (Number.isNaN(birthDate.getTime())) return null;
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const hasHadBirthdayThisYear =
+          today.getMonth() > birthDate.getMonth() ||
+          (today.getMonth() === birthDate.getMonth() &&
+            today.getDate() >= birthDate.getDate());
+        if (!hasHadBirthdayThisYear) age -= 1;
+        return age;
+      }
+
       function formatSpeed(speed) {
         const rounded = Math.round(speed * 100) / 100;
         return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
@@ -2322,8 +2336,9 @@
           profile?.name ?? "—";
         document.getElementById("profileGender").textContent =
           genderMap[profile?.gender] ?? "—";
-        document.getElementById("profileBirth").textContent =
-          formatDateFromTimestamp(profile?.birth);
+        const age = getAge(profile?.birth);
+        document.getElementById("profileAge").textContent =
+          age === null ? "—" : age + " 歲";
         const formattedExamDate = formatDateFromTimestamp(examDate);
         document.getElementById("profileExamDate").textContent =
           formattedExamDate;
@@ -2385,15 +2400,15 @@
       function getSwayLevel(leftOffset, rightOffset) {
         const swayDegree =
           Math.abs(Number(leftOffset)) + Math.abs(Number(rightOffset));
-        if (swayDegree < 4.0) return "low";
-        if (swayDegree < 7.0) return "medium";
+        if (swayDegree < 8.0) return "low";
+        if (swayDegree < 14.0) return "medium";
         return "high";
       }
 
       function getBalanceStatus(left, right) {
         const swayDegree =
           Math.abs(parseFloat(left) || 0) + Math.abs(parseFloat(right) || 0);
-        if (swayDegree < 4.0) {
+        if (swayDegree < 8.0) {
           return {
             title: "輕微搖晃",
             desc: "身體保持穩定，僅有自然小幅晃動，重心維持於安全範圍",
@@ -2401,7 +2416,7 @@
             className: "balance-status good",
             illustration: "assets/balance_status_good.png",
           };
-        } else if (swayDegree < 7.0) {
+        } else if (swayDegree < 14.0) {
           return {
             title: "中度搖晃",
             desc: "身體出現明顯左右晃動，重心移動範圍增加，需要注意平衡能力",
