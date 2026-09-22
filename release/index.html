@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="build-version" content="20260716-141053" />
+    <meta name="build-version" content="20260922-152145" />
     <title>步態分析詳細報告</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;700&display=swap"
@@ -2625,8 +2625,8 @@
         if (isInAppBrowser()) {
           const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
           const hint = isIOS
-            ? "請點擊右上角「⋯」選單，選擇「在 Safari 中開啟」後再試一次"
-            : "請點擊右上角「⋯」選單，選擇「在 Chrome 中開啟」後再試一次";
+            ? "請點擊右下角「⋯」選單，選擇「在瀏覽器中開啟」後再試一次"
+            : "請點擊右下角「⋯」選單，選擇「在瀏覽器中開啟」後再試一次";
           alert("為了順利儲存報告圖片，" + hint);
           return;
         }
@@ -2679,7 +2679,7 @@
             <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;">
               <div style="text-align:center;padding:20px;">
                 <p style="font-family:sans-serif;color:#333;margin-bottom:16px;font-size:24px;font-weight:700;line-height:1.5;">
-                  長按下方圖片，選擇「儲存圖片」即可存到相簿
+                  長按下方圖片，選擇「儲存到照片」即可存到相簿
                 </p>
                 <img src="${dataUrl}" style="max-width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);" />
               </div>

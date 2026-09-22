@@ -83,12 +83,11 @@ function formatBuildTime(date = new Date()) {
 function injectBuildVersion(htmlPath, buildTime) {
   const html = fs.readFileSync(htmlPath, "utf8");
   if (!html.includes("__BUILD_TIME__")) {
-    console.warn("警告：找不到 __BUILD_TIME__ 佔位字串，版本標記未寫入");
-    return buildTime;
+    return false;
   }
   const updated = html.split("__BUILD_TIME__").join(buildTime);
   fs.writeFileSync(htmlPath, updated, "utf8");
-  return buildTime;
+  return true;
 }
 
 function main() {
@@ -119,8 +118,14 @@ function main() {
   copyFile(htmlSrc, htmlDest);
 
   const buildTime = formatBuildTime();
-  console.log(`寫入版本標記：${buildTime}`);
-  injectBuildVersion(htmlDest, buildTime);
+  const versionInjected = injectBuildVersion(htmlDest, buildTime);
+  if (versionInjected) {
+    console.log(`寫入版本標記：${buildTime}`);
+  } else {
+    console.warn(
+      "⚠ 版本標記寫入失敗，請檢查來源檔案（找不到 __BUILD_TIME__ 佔位字串）",
+    );
+  }
 
   console.log(`複製 ${ASSETS_DIR}/ …`);
   copyDir(assetsSrc, path.join(RELEASE_DIR, ASSETS_DIR));
@@ -140,7 +145,9 @@ function main() {
   console.log("打包成功！");
   console.log("────────────────────────────────────────────");
   console.log(`輸出路徑：${RELEASE_DIR}`);
-  console.log(`版本標記：${buildTime}`);
+  console.log(
+    `版本標記：${versionInjected ? buildTime : "（寫入失敗，內容仍為舊版本標記）"}`,
+  );
   console.log("");
   console.log("包含檔案：");
   for (const file of files) {
