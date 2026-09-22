@@ -1,0 +1,18 @@
+DirectoryIndex page.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /fongai-walk-kiosk/
+  Options -MultiViews
+
+  # 資料夾根路徑 → page.php（不依賴 DirectoryIndex）
+  RewriteRule ^$ page.php [L]
+
+  # 真實存在的檔案／子目錄直接放行（assets 等）
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 其餘 fallback
+  RewriteRule ^ page.php [L]
+</IfModule>

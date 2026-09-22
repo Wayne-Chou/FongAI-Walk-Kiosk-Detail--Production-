@@ -1,0 +1,2760 @@
+﻿<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="build-version" content="20260716-141053" />
+    <title>步態分析詳細報告</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      :root {
+        --blue-50: #eff6ff;
+        --blue-100: #dbeafe;
+        --blue-200: #bfdbfe;
+        --blue-500: #3b82f6;
+        --blue-600: #2563eb;
+        --blue-700: #1d4ed8;
+        --blue-900: #1e3a8a;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-400: #94a3b8;
+        --gray-600: #475569;
+        --gray-900: #0f172a;
+        --green-50: #f0fdf4;
+        --green-500: #22c55e;
+        --green-600: #16a34a;
+        --orange-500: #f97316;
+        --red-500: #ef4444;
+        --color-low2: #4ffa00;
+        --color-low: #8cff00;
+        --color-medium: #ffd039;
+        --color-high: #ffa203;
+        --color-danger: #ff5757;
+      }
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--gray-100);
+        color: var(--gray-900);
+        font-family: "Noto Sans TC", sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .signal-title {
+        background: #eff6ff;
+        padding: 5px 8px;
+        border-radius: 6px;
+        color: #ef4444;
+        border: 1px solid #bfdbfe;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .top-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: var(--gray-900);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        z-index: 100;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+      }
+      .nav-logo img {
+        height: 32px;
+        width: auto;
+        display: block;
+      }
+      .nav-partner img {
+        height: 44px;
+        width: auto;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+      }
+
+      .page {
+        max-width: 1280px;
+        margin: 64px auto 0;
+        padding: 28px 24px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .report-hero {
+        background: linear-gradient(
+          135deg,
+          var(--blue-900) 0%,
+          var(--blue-700) 100%
+        );
+        border-radius: 20px;
+        padding: 32px 36px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+      }
+      .report-hero::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 260px;
+        height: 260px;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 50%;
+      }
+      .report-hero::after {
+        content: "";
+        position: absolute;
+        bottom: -80px;
+        right: 200px;
+        width: 320px;
+        height: 320px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50%;
+      }
+      .hero-left {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+      }
+      .hero-eyebrow {
+        font-size: 1rem;
+        font-weight: 900;
+        letter-spacing: 3px;
+        color: var(--blue-200);
+        margin-bottom: 8px;
+      }
+      .hero-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        line-height: 1.15;
+        margin-bottom: 16px;
+      }
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      .hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 100px;
+        padding: 5px 14px;
+        font-size: 1.15rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        font-family: "Roboto Mono", monospace;
+      }
+      .hero-chip i {
+        font-size: 0.78rem;
+        color: var(--blue-200);
+      }
+      .hero-save-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: white;
+        color: var(--blue-700);
+        border: none;
+        cursor: pointer;
+        padding: 16px 28px;
+        border-radius: 14px;
+        font-size: 1.25rem;
+        font-weight: 900;
+        font-family: "Noto Sans TC", sans-serif;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        animation: pulse 2s ease-in-out infinite;
+        position: relative;
+        z-index: 1;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .hero-save-btn:hover {
+        transform: scale(1.03);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+      }
+      .hero-save-btn:active {
+        transform: scale(0.97);
+      }
+      .hero-save-btn i {
+        font-size: 1.3rem;
+        color: var(--blue-600);
+      }
+      .hero-save-btn .btn-sub {
+        display: block;
+        font-size: 1.15rem;
+        font-weight: 500;
+        color: var(--gray-400);
+        margin-top: 2px;
+      }
+      .hero-save-btn .btn-countdown {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--blue-600);
+        margin-top: 4px;
+      }
+      .hero-save-btn .btn-countdown i {
+        font-size: 0.8rem;
+        color: var(--blue-600);
+      }
+      .hero-save-btn .btn-countdown.expired {
+        color: var(--red-500);
+      }
+      .hero-save-btn .btn-countdown.expired i {
+        color: var(--red-500);
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow:
+            0 4px 20px rgba(0, 0, 0, 0.2),
+            0 0 0 0 rgba(255, 255, 255, 0.4);
+        }
+        50% {
+          box-shadow:
+            0 4px 20px rgba(0, 0, 0, 0.2),
+            0 0 0 10px rgba(255, 255, 255, 0);
+        }
+      }
+
+      .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.4rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: var(--gray-600);
+        margin-bottom: -6px;
+      }
+      .section-label::before {
+        content: "";
+        display: block;
+        width: 4px;
+        height: 24px;
+        background: var(--blue-500);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      .card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow:
+          0 1px 4px rgba(0, 0, 0, 0.06),
+          0 4px 16px rgba(0, 0, 0, 0.04);
+      }
+      .card-title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 22px 16px;
+        border-bottom: 1px solid var(--gray-100);
+      }
+      .card-title-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--blue-50);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .card-title-icon i {
+        font-size: 1.2rem;
+        color: var(--blue-600);
+      }
+      .ct-label {
+        font-size: 1rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        color: var(--gray-400);
+      }
+      .ct-title {
+        font-size: 1.4rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        line-height: 1.2;
+      }
+      .card-body {
+        padding: 22px;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .profile-skeleton-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+      .profile-skeleton-left {
+        padding: 22px;
+        border-right: 1px solid var(--gray-100);
+      }
+
+      .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .profile-item {
+        background: var(--gray-50);
+        border-radius: 12px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .pi-label {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--gray-400);
+        letter-spacing: 1px;
+      }
+      .pi-val {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        font-family: "Roboto Mono", monospace;
+      }
+      .pi-val.name-val {
+        font-family: "Noto Sans TC", sans-serif;
+        font-size: 1.3rem;
+      }
+      .skeleton-ph {
+        background: var(--gray-50);
+        border-radius: 12px;
+        border: 2px solid var(--gray-200);
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 28px;
+        height: 100%;
+      }
+      .skeleton-ph i {
+        font-size: 3rem;
+        color: var(--gray-200);
+      }
+      .sph-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--gray-400);
+      }
+      .sph-sub {
+        font-size: 0.82rem;
+        color: var(--gray-400);
+        text-align: center;
+        line-height: 1.7;
+      }
+      .stick-panel {
+        text-align: center;
+        padding: 16px;
+
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: 100%;
+      }
+      .stick-figure {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .balance-card {
+        background: white;
+        border: 2px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 20px 16px;
+        margin-bottom: 32px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .balance-card:last-child {
+        margin-bottom: 0;
+      }
+      .balance-card-title {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        margin: 0 0 16px 0;
+        text-align: center;
+      }
+      .balance-illustration {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 16px;
+        width: 100%;
+      }
+      .balance-illustration-img {
+        width: 100%;
+        height: auto;
+      }
+      .balance-status-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        border-radius: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+      }
+      .balance-status.good {
+        background: #ecfdf5;
+        color: #065f46;
+      }
+      .balance-status.warn {
+        background: #fffbeb;
+        color: #92400e;
+      }
+      .balance-status.danger {
+        background: #fef2f2;
+        color: #991b1b;
+      }
+      .balance-status.good .balance-status-title {
+        color: #065f46;
+      }
+      .balance-status.warn .balance-status-title {
+        color: #92400e;
+      }
+      .balance-status.danger .balance-status-title {
+        color: #991b1b;
+      }
+      .balance-status-copy {
+        flex: 1;
+        min-width: 0;
+      }
+      .balance-status-title {
+        font-size: 1.35rem;
+        font-weight: 900;
+        line-height: 1.4;
+        margin-bottom: 8px;
+      }
+      .balance-status-desc {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1.7;
+        white-space: normal;
+      }
+
+      /* ── 風險評估 ── */
+      .risk-badge-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        border: 1px solid #fed7aa;
+        margin-bottom: 28px;
+        background: #fff7ed;
+        transition:
+          background 0.2s,
+          border-color 0.2s;
+      }
+      .risk-badge-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: var(--color-high);
+        transition: background 0.2s;
+      }
+      .risk-badge-icon i {
+        font-size: 1.3rem;
+        color: white;
+      }
+      .risk-badge-label {
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: #9a3412;
+      }
+      .risk-badge-title {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: #7c2d12;
+        transition: color 0.2s;
+      }
+
+      /* 風險等級切換按鈕 */
+      .risk-level-switcher {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .risk-level-btn {
+        flex: 1;
+        min-width: 52px;
+        padding: 7px 6px;
+        border-radius: 8px;
+        border: 2px solid var(--gray-200);
+        background: white;
+        font-size: 0.8rem;
+        font-weight: 700;
+        font-family: "Noto Sans TC", sans-serif;
+        cursor: pointer;
+        color: var(--gray-600);
+        text-align: center;
+        transition: all 0.15s;
+      }
+      .risk-level-btn:hover {
+        border-color: var(--gray-400);
+        color: var(--gray-900);
+      }
+      .risk-level-btn.active[data-level="low2"] {
+        background: var(--color-low2);
+        border-color: var(--color-low2);
+        color: #1a4a00;
+      }
+      .risk-level-btn.active[data-level="low"] {
+        background: var(--color-low);
+        border-color: var(--color-low);
+        color: #2a5000;
+      }
+      .risk-level-btn.active[data-level="medium"] {
+        background: var(--color-medium);
+        border-color: var(--color-medium);
+        color: #5a3a00;
+      }
+      .risk-level-btn.active[data-level="high"] {
+        background: var(--color-high);
+        border-color: var(--color-high);
+        color: white;
+      }
+      .risk-level-btn.active[data-level="danger"] {
+        background: var(--color-danger);
+        border-color: var(--color-danger);
+        color: white;
+      }
+
+      .risk-meter {
+        position: relative;
+        padding: 0 4px;
+        margin-top: 72px;
+        margin-bottom: 8px;
+      }
+      .risk-bar {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+        height: 26px;
+
+        overflow: hidden;
+      }
+      /* ── 移除 opacity，色塊全部完整顯示 ── */
+      .risk-seg {
+        transition: box-shadow 0.2s;
+      }
+      .risk-seg.low2 {
+        background: var(--color-low2);
+      }
+      .risk-seg.low {
+        background: var(--color-low);
+      }
+      .risk-seg.medium {
+        background: var(--color-medium);
+      }
+      .risk-seg.high {
+        background: var(--color-high);
+      }
+      .risk-seg.danger {
+        background: var(--color-danger);
+      }
+
+      .risk-labels {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        text-align: center;
+        margin-top: 10px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--gray-400);
+        gap: 4px;
+        line-height: 1.3;
+      }
+      .risk-labels span {
+        display: block;
+        padding: 0 2px;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
+      }
+      .risk-labels span.active-label {
+        color: var(--gray-900);
+        font-weight: 900;
+      }
+      .risk-indicator {
+        position: absolute;
+        top: -56px;
+        left: 10%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        transition: left 0.3s;
+        z-index: 2;
+      }
+      .risk-indicator-pill {
+        color: white;
+        font-size: 1.15rem;
+        font-weight: 900;
+        padding: 6px 12px;
+        border-radius: 100px;
+        white-space: nowrap;
+        text-align: center;
+        line-height: 1.25;
+        background: var(--color-low2);
+        transition: background 0.2s;
+      }
+      .risk-indicator i {
+        font-size: 1rem;
+        color: var(--color-low2);
+        transition: color 0.2s;
+      }
+
+      /* ── 步態數據 ── */
+      .gait-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 480px) {
+        .gait-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .gait-item {
+        background: var(--gray-50);
+        border-radius: 12px;
+        padding: 18px;
+      }
+      .gait-item-label {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--gray-400);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .gait-big-val {
+        font-family: "Roboto Mono", monospace;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        line-height: 1;
+        margin-bottom: 10px;
+      }
+      .gait-big-val .unit {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: var(--gray-400);
+        margin-left: 2px;
+      }
+      .gait-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 100px;
+      }
+      .gait-pill.good {
+        background: var(--green-50);
+        color: var(--green-600);
+      }
+      .gait-pill.warning {
+        background: #fff7ed;
+        color: var(--orange-500);
+      }
+      .gait-pill.bad {
+        background: #fef2f2;
+        color: var(--red-500);
+      }
+      .sway-track {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 4px;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 10px 0 6px;
+      }
+      .sway-seg {
+        background: var(--gray-200);
+        border-radius: 3px;
+      }
+      .sway-seg.s-low {
+        background: var(--green-500);
+      }
+      .sway-seg.s-medium {
+        background: var(--orange-500);
+      }
+      .sway-seg.s-high {
+        background: var(--red-500);
+      }
+      .sway-labels {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--gray-400);
+        text-align: center;
+        margin-bottom: 8px;
+      }
+      .sway-labels .sl-low {
+        color: var(--green-600);
+      }
+      .sway-labels .sl-medium {
+        color: var(--orange-500);
+      }
+      .sway-labels .sl-high {
+        color: var(--red-500);
+      }
+      .gait-desc {
+        font-size: 1.15rem;
+        color: var(--gray-600);
+        line-height: 1.65;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--gray-200);
+      }
+
+      .sway-switcher {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .sway-btn {
+        flex: 1;
+        padding: 7px 0;
+        border-radius: 8px;
+        border: 2px solid var(--gray-200);
+        background: white;
+        font-size: 0.82rem;
+        font-weight: 700;
+        font-family: "Noto Sans TC", sans-serif;
+        cursor: pointer;
+        color: var(--gray-600);
+        transition: all 0.15s;
+      }
+      .sway-btn:hover {
+        border-color: var(--gray-400);
+        color: var(--gray-900);
+      }
+      .sway-btn.active-low {
+        background: var(--green-50);
+        border-color: var(--green-500);
+        color: var(--green-600);
+      }
+      .sway-btn.active-medium {
+        background: #fff7ed;
+        border-color: var(--orange-500);
+        color: var(--orange-500);
+      }
+      .sway-btn.active-high {
+        background: #fef2f2;
+        border-color: var(--red-500);
+        color: var(--red-500);
+      }
+      .sway-panel {
+        display: none;
+      }
+      .sway-panel.active {
+        display: block;
+      }
+
+      .sppb-switcher {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 14px;
+      }
+      .sppb-btn {
+        flex: 1;
+        padding: 7px 4px;
+        border-radius: 8px;
+        border: 2px solid var(--gray-200);
+        background: white;
+        font-size: 0.8rem;
+        font-weight: 700;
+        font-family: "Noto Sans TC", sans-serif;
+        cursor: pointer;
+        color: var(--gray-600);
+        text-align: center;
+        transition: all 0.15s;
+      }
+      .sppb-btn:hover {
+        border-color: var(--gray-400);
+        color: var(--gray-900);
+      }
+      .sppb-btn.active.s4 {
+        background: var(--green-50);
+        border-color: var(--green-500);
+        color: var(--green-600);
+      }
+      .sppb-btn.active.s3 {
+        background: #f0fff4;
+        border-color: #86efac;
+        color: #15803d;
+      }
+      .sppb-btn.active.s2 {
+        background: #fff7ed;
+        border-color: var(--orange-500);
+        color: var(--orange-500);
+      }
+      .sppb-btn.active.s1 {
+        background: #fef2f2;
+        border-color: var(--red-500);
+        color: var(--red-500);
+      }
+      .sppb-btn.active.s0 {
+        background: #fef2f2;
+        border-color: #7f1d1d;
+        color: #7f1d1d;
+      }
+      .sppb-panel {
+        display: none;
+      }
+      .sppb-panel.active {
+        display: block;
+      }
+
+      .risk-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .risk-tab {
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: "Noto Sans TC", sans-serif;
+      }
+      .risk-tab[data-level="low2"] {
+        background: #e8fff0;
+        color: #1a7a00;
+        border-color: var(--color-low2);
+      }
+      .risk-tab[data-level="low"] {
+        background: #f0ffe0;
+        color: #3a7000;
+        border-color: var(--color-low);
+      }
+      .risk-tab[data-level="medium"] {
+        background: #fff9e0;
+        color: #7a5800;
+        border-color: var(--color-medium);
+      }
+      .risk-tab[data-level="high"] {
+        background: #fff3e0;
+        color: #7a3800;
+        border-color: var(--color-high);
+      }
+      .risk-tab[data-level="danger"] {
+        background: #fff0f0;
+        color: #7a0000;
+        border-color: var(--color-danger);
+      }
+      .risk-tab.active[data-level="low2"] {
+        background: var(--color-low2);
+        color: #1a4a00;
+      }
+      .risk-tab.active[data-level="low"] {
+        background: var(--color-low);
+        color: #2a5000;
+      }
+      .risk-tab.active[data-level="medium"] {
+        background: var(--color-medium);
+        color: #5a3a00;
+      }
+      .risk-tab.active[data-level="high"] {
+        background: var(--color-high);
+        color: white;
+      }
+      .risk-tab.active[data-level="danger"] {
+        background: var(--color-danger);
+        color: white;
+      }
+      .action-panel {
+        display: none;
+      }
+      .action-panel.active {
+        display: block;
+      }
+      .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .action-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        background: var(--gray-50);
+        border-radius: 12px;
+        padding: 16px;
+        border-left: 3px solid var(--blue-500);
+      }
+      .action-item.level-low2 {
+        border-left-color: var(--color-low2);
+      }
+      .action-item.level-low {
+        border-left-color: var(--color-low);
+      }
+      .action-item.level-medium {
+        border-left-color: var(--color-medium);
+      }
+      .action-item.level-high {
+        border-left-color: var(--color-high);
+      }
+      .action-item.level-danger {
+        border-left-color: var(--color-danger);
+      }
+      .action-num {
+        flex-shrink: 0;
+        width: 34px;
+        height: 34px;
+        background: var(--blue-600);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 900;
+        color: white;
+        font-family: "Roboto Mono", monospace;
+      }
+      .action-title {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        margin-bottom: 3px;
+      }
+      .action-desc {
+        font-size: 1.15rem;
+        color: var(--gray-600);
+        line-height: 1.65;
+      }
+
+      .card-divider {
+        height: 1px;
+        background: var(--gray-100);
+        margin: 24px 0;
+      }
+      .card-sub-title {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--gray-600);
+        letter-spacing: 1px;
+        margin-bottom: 14px;
+      }
+      .card-sub-title i {
+        color: var(--blue-500);
+      }
+      .edu-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .edu-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 14px 16px;
+        background: var(--gray-50);
+        border-radius: 12px;
+      }
+      .edu-icon {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        background: var(--blue-50);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .edu-icon i {
+        font-size: 1rem;
+        color: var(--blue-600);
+      }
+      .edu-title {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        margin-bottom: 2px;
+      }
+      .edu-desc {
+        font-size: 1.15rem;
+        color: var(--gray-600);
+        line-height: 1.65;
+      }
+      .api-error-banner {
+        display: none;
+        align-items: flex-start;
+        gap: 12px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 14px;
+        padding: 16px 20px;
+        color: #991b1b;
+        font-size: 1.15rem;
+        font-weight: 700;
+        line-height: 1.6;
+      }
+      .api-error-banner.show {
+        display: flex;
+      }
+      .api-error-banner i {
+        font-size: 1.2rem;
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+
+      .closing {
+        background: var(--blue-50);
+        border-radius: 12px;
+        border-left: 4px solid var(--blue-500);
+        padding: 16px 18px;
+        font-size: 1.2rem;
+        color: #1e40af;
+        line-height: 1.8;
+        font-weight: 500;
+      }
+      .campaign-card {
+        background: white;
+        border: 2px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      }
+      .campaign-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 16px 0;
+      }
+      .campaign-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--blue-600);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .campaign-icon i {
+        font-size: 1.3rem;
+        color: white;
+      }
+      .campaign-tag {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        color: var(--blue-600);
+        margin-bottom: 4px;
+      }
+      .campaign-title {
+        font-size: 1.4rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        margin: 0;
+        line-height: 1.4;
+      }
+      .campaign-divider {
+        height: 1px;
+        background: var(--gray-200);
+        margin-bottom: 16px;
+      }
+      .campaign-content {
+        font-size: 1.15rem;
+        color: var(--gray-600);
+        line-height: 1.8;
+        margin: 0;
+        white-space: pre-line;
+      }
+      .email-block {
+        margin-top: 20px;
+        background: var(--gray-50);
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid var(--gray-200);
+      }
+      .email-block-title {
+        font-size: 0.95rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .email-block-title i {
+        color: var(--blue-500);
+      }
+      .email-block-desc {
+        font-size: 0.83rem;
+        color: var(--gray-600);
+        margin-bottom: 14px;
+        line-height: 1.6;
+      }
+      .email-input-row {
+        display: flex;
+        gap: 10px;
+      }
+      .email-input {
+        flex: 1;
+        height: 48px;
+        border: 1.5px solid var(--gray-200);
+        border-radius: 10px;
+        padding: 0 16px;
+        font-size: 0.95rem;
+        font-family: "Noto Sans TC", sans-serif;
+        color: var(--gray-900);
+        background: white;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .email-input:focus {
+        border-color: var(--blue-500);
+      }
+      .email-send-btn {
+        height: 48px;
+        padding: 0 22px;
+        background: var(--blue-600);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.92rem;
+        font-weight: 900;
+        font-family: "Noto Sans TC", sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        transition: background 0.15s;
+      }
+      .email-send-btn:hover {
+        background: var(--blue-700);
+      }
+      .email-send-btn:active {
+        opacity: 0.85;
+      }
+      .email-status {
+        margin-top: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        min-height: 20px;
+      }
+      .email-status.ok {
+        color: var(--green-600);
+      }
+      .email-status.err {
+        color: var(--red-500);
+      }
+      @media (max-width: 480px) {
+        .email-input-row {
+          flex-direction: column;
+        }
+        .email-send-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(4px);
+        z-index: 200;
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        animation: overlayIn 0.25s ease;
+      }
+      .modal-overlay.show {
+        display: flex;
+      }
+      @keyframes overlayIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .modal-sheet {
+        background: white;
+        width: 100%;
+        max-width: 680px;
+        border-radius: 24px 24px 0 0;
+        padding: 12px 28px 44px;
+        animation: sheetUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes sheetUp {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+      .modal-handle {
+        width: 40px;
+        height: 4px;
+        background: var(--gray-200);
+        border-radius: 2px;
+        margin: 0 auto 22px;
+      }
+      .modal-icon-wrap {
+        width: 76px;
+        height: 76px;
+        background: var(--blue-50);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+      }
+      .modal-icon-wrap i {
+        font-size: 2.2rem;
+        color: var(--blue-600);
+      }
+      .modal-title {
+        font-size: 1.4rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        text-align: center;
+        margin-bottom: 8px;
+      }
+      .modal-desc {
+        font-size: 1.15rem;
+        color: var(--gray-600);
+        text-align: center;
+        line-height: 1.75;
+        margin-bottom: 6px;
+      }
+      .modal-hint {
+        font-size: 1rem;
+        color: var(--gray-400);
+        text-align: center;
+        margin-bottom: 28px;
+        line-height: 1.6;
+      }
+      .modal-expire {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        background: var(--blue-50);
+        border: 1px solid var(--blue-100);
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 28px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--blue-700);
+        text-align: center;
+      }
+      .modal-expire i {
+        color: var(--blue-600);
+      }
+      .modal-expire.expired {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: var(--red-500);
+      }
+      .modal-expire.expired i {
+        color: var(--red-500);
+      }
+      .modal-btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .modal-btn {
+        height: 58px;
+        border-radius: 14px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        font-family: "Noto Sans TC", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: opacity 0.15s;
+      }
+      .modal-btn:active {
+        opacity: 0.8;
+      }
+      .modal-btn-save {
+        background: var(--blue-600);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+      .modal-btn-cancel {
+        background: var(--gray-100);
+        color: var(--gray-600);
+      }
+      .expired-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f7fa;
+        padding: 24px;
+      }
+      .expired-card {
+        width: 100%;
+        max-width: 560px;
+        background: white;
+        border-radius: 20px;
+        padding: 28px 24px;
+        text-align: center;
+        box-shadow: 0 16px 40px rgba(2, 6, 23, 0.15);
+      }
+      .expired-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 14px;
+        border-radius: 18px;
+        background: #fef2f2;
+        color: var(--red-500);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+      .expired-title {
+        font-size: 1.45rem;
+        font-weight: 900;
+        color: var(--gray-900);
+        margin-bottom: 8px;
+      }
+      .expired-desc {
+        font-size: 1.2rem;
+        color: var(--gray-600);
+        line-height: 1.7;
+        margin-bottom: 18px;
+      }
+
+      @media (min-width: 768px) {
+        .page {
+          padding: 32px 32px 60px;
+        }
+        .hero-title {
+          font-size: 2.4rem;
+        }
+        .profile-skeleton-body {
+          grid-template-columns: 1fr 1fr;
+          align-items: start;
+        }
+        .profile-skeleton-left {
+          border-right: 1px solid var(--gray-100);
+          border-bottom: none;
+        }
+        .stick-panel {
+          height: auto;
+        }
+        .modal-sheet {
+          border-radius: 24px 24px 0 0;
+        }
+        .modal-overlay {
+          align-items: flex-end;
+        }
+        .balance-status-title {
+          font-size: 1.4rem;
+        }
+        .balance-status-desc {
+          font-size: 1.25rem;
+        }
+      }
+      @media (min-width: 1024px) {
+        .page {
+          padding: 36px 48px 72px;
+        }
+        .two-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+          align-items: start;
+        }
+        .two-col-left {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        .two-col-right {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        .two-col .section-label {
+          margin-bottom: -6px;
+        }
+        .profile-skeleton-body {
+          display: block;
+        }
+        .profile-skeleton-left {
+          border-right: none;
+          border-bottom: 1px solid var(--gray-100);
+          padding: 22px;
+        }
+        .profile-skeleton-right {
+          padding: 22px;
+        }
+        .profile-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .modal-overlay {
+          align-items: center;
+        }
+        .modal-sheet {
+          border-radius: 24px;
+          max-width: 500px;
+          padding-bottom: 32px;
+        }
+      }
+      @media (max-width: 767px) {
+        .profile-skeleton-body {
+          grid-template-columns: 1fr;
+        }
+        .profile-skeleton-left {
+          border-right: none;
+          border-bottom: 1px solid var(--gray-100);
+        }
+        .profile-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        .report-hero {
+          flex-direction: column;
+          padding: 24px 20px;
+        }
+        .hero-title {
+          font-size: 1.7rem;
+        }
+        .gait-grid {
+          grid-template-columns: 1fr;
+        }
+        .flow-content {
+          padding: 0 16px 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="modal-overlay show" id="saveModal">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-icon-wrap"><i class="fa-solid fa-images"></i></div>
+        <div class="modal-title">儲存分析報告</div>
+        <div class="modal-desc">
+          是否將此份<strong>步態分析報告</strong>儲存為圖片？
+        </div>
+        <div class="modal-hint">
+          報告將以圖檔方式存入您的相簿，<br />方便日後查閱或與家人分享。
+        </div>
+        <div class="modal-expire" id="modalExpire">
+          <i class="fa-solid fa-clock"></i>
+          <span
+            >報告有效期限：1 天（剩餘
+            <span id="modalCountdown">計算中…</span>）</span
+          >
+        </div>
+        <div class="modal-btn-group">
+          <button class="modal-btn modal-btn-save" onclick="saveReport()">
+            <i class="fa-solid fa-download"></i>儲存至相簿
+          </button>
+          <button class="modal-btn modal-btn-cancel" onclick="closeModal()">
+            略過，直接查看報告
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="top-nav">
+      <div class="nav-logo">
+        <img src="assets/logo.png" alt="FongAI" />
+      </div>
+      <div class="nav-partner">
+        <img src="assets/ntpc-health.png" alt="新北市衛生局" />
+      </div>
+    </nav>
+
+    <div class="page">
+      <div class="api-error-banner" id="apiErrorBanner" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="apiErrorMessage"></span>
+      </div>
+      <div class="report-hero">
+        <div class="hero-left">
+          <div class="hero-eyebrow"></div>
+          <div class="hero-title">步態分析<br />詳細報告</div>
+          <div class="hero-meta">
+            <span class="hero-chip"
+              ><i class="fa-solid fa-calendar-days"></i
+              ><span id="heroExamDate">載入中…</span></span
+            >
+          </div>
+          <button class="hero-save-btn" onclick="triggerSave()">
+            <i class="fa-solid fa-download"></i>
+            <span
+              >儲存此報告<span class="btn-sub">點擊儲存圖片至相簿</span
+              ><span class="btn-sub btn-countdown"
+                ><i class="fa-solid fa-clock"></i>儲存時效剩餘
+                <span id="heroCountdown">計算中…</span></span
+              ></span
+            >
+          </button>
+        </div>
+      </div>
+
+      <div class="section-label">個人資訊與行動力</div>
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title-icon"><i class="fa-solid fa-id-card"></i></div>
+          <div>
+            <div class="ct-label"></div>
+            <div class="ct-title">基本資料與行動力狀態</div>
+          </div>
+        </div>
+        <div class="profile-skeleton-body">
+          <div class="profile-skeleton-left">
+            <div class="profile-grid">
+              <div class="profile-item">
+                <div class="pi-label">姓名</div>
+                <div class="pi-val name-val" id="profileName">載入中…</div>
+              </div>
+              <div class="profile-item">
+                <div class="pi-label">性別</div>
+                <div class="pi-val" id="profileGender">載入中…</div>
+              </div>
+              <div class="profile-item">
+                <div class="pi-label">出生年月日</div>
+                <div class="pi-val" id="profileBirth">載入中…</div>
+              </div>
+              <div class="profile-item">
+                <div class="pi-label">檢測日期</div>
+                <div class="pi-val" id="profileExamDate">載入中…</div>
+              </div>
+            </div>
+          </div>
+          <div class="profile-skeleton-right">
+            <div class="stick-panel">
+              <div class="stick-figure" id="stickFigureContainer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">風險評估</div>
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <div class="ct-label"></div>
+            <div class="ct-title">跌倒風險等級評估</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="risk-badge-row" id="riskBadgeRow">
+            <div class="risk-badge-icon" id="riskBadgeIcon">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <div class="risk-badge-label"></div>
+              <div class="risk-badge-title" id="riskBadgeTitle">載入中…</div>
+            </div>
+          </div>
+          <div class="risk-meter">
+            <div class="risk-indicator" id="riskIndicator">
+              <div class="risk-indicator-pill" id="riskIndicatorPill">
+                目前程度
+              </div>
+              <i class="fa-solid fa-caret-down" id="riskIndicatorArrow"></i>
+            </div>
+            <div class="risk-bar">
+              <div class="risk-seg low2" id="rseg-low2"></div>
+              <div class="risk-seg low" id="rseg-low"></div>
+              <div class="risk-seg medium" id="rseg-medium"></div>
+              <div class="risk-seg high" id="rseg-high"></div>
+              <div class="risk-seg danger" id="rseg-danger"></div>
+            </div>
+            <div class="risk-labels">
+              <span id="rlbl-low2">低</span>
+              <span id="rlbl-low">稍低</span>
+              <span id="rlbl-medium">中</span>
+              <span id="rlbl-high">高</span>
+              <span id="rlbl-danger">危險</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">步態指標</div>
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title-icon">
+            <i class="fa-solid fa-person-walking"></i>
+          </div>
+          <div>
+            <div class="ct-label"></div>
+            <div class="ct-title">步態數據指標</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="gait-grid">
+            <div class="gait-item" id="sppbGaitItem">
+              <div class="gait-item-label">
+                <i class="fa-solid fa-gauge-high"></i>步行速度
+              </div>
+              <div class="sppb-panel active" id="sppb-4">
+                <div class="gait-big-val" id="sppbSpeedVal">
+                  —<span class="unit">cm/s</span>
+                </div>
+                <div class="gait-pill good">
+                  <i class="fa-solid fa-circle-check"></i>正常範圍
+                </div>
+                <div class="gait-desc" id="sppbDesc-4">
+                  步行速度達到 SPPB 滿分（4分）標準（&gt; 83
+                  cm/s），代表下肢肌力與協調能力良好，建議維持每日至少 30
+                  分鐘的規律步行習慣。
+                </div>
+              </div>
+              <div class="sppb-panel" id="sppb-3">
+                <div
+                  class="gait-big-val"
+                  style="
+                    font-size: 1.4rem;
+                    font-family: &quot;Noto Sans TC&quot;, sans-serif;
+                  "
+                >
+                  65–83 <span class="unit">cm/s</span>
+                </div>
+                <div class="gait-pill warning">
+                  <i class="fa-solid fa-triangle-exclamation"></i>稍慢，需留意
+                </div>
+                <div class="gait-desc" id="sppbDesc-3">
+                  SPPB 3分：步行速度 65～83 cm/s（通過時間 4.82～6.20
+                  秒），下肢功能略有下降。建議增加日常步行量，並每週進行 2～3
+                  次輕度肌力訓練，如深蹲、踮腳尖等動作。
+                </div>
+              </div>
+              <div class="sppb-panel" id="sppb-2">
+                <div
+                  class="gait-big-val"
+                  style="
+                    font-size: 1.4rem;
+                    font-family: &quot;Noto Sans TC&quot;, sans-serif;
+                  "
+                >
+                  46–64 <span class="unit">cm/s</span>
+                </div>
+                <div class="gait-pill warning">
+                  <i class="fa-solid fa-triangle-exclamation"></i>偏慢，需加強
+                </div>
+                <div class="gait-desc" id="sppbDesc-2">
+                  SPPB 2分：步行速度 46～64 cm/s（通過時間 6.21～8.70
+                  秒），顯示下肢功能明顯退化。建議諮詢專業人員，進行評估與步態訓練，同時檢視居家環境安全。
+                </div>
+              </div>
+              <div class="sppb-panel" id="sppb-1">
+                <div
+                  class="gait-big-val"
+                  style="
+                    font-size: 1.4rem;
+                    font-family: &quot;Noto Sans TC&quot;, sans-serif;
+                  "
+                >
+                  &lt;46 <span class="unit">cm/s</span>
+                </div>
+                <div class="gait-pill bad">
+                  <i class="fa-solid fa-circle-exclamation"></i>步速過慢，高風險
+                </div>
+                <div class="gait-desc" id="sppbDesc-1">
+                  SPPB 1分：步行速度低於 46 cm/s（通過時間 &gt; 8.70
+                  秒），建議就醫評估，進行專業復健介入，外出時應使用輔助器具，以確保安全。
+                </div>
+              </div>
+            </div>
+            <div class="gait-item" id="swayGaitItem">
+              <div class="gait-item-label">
+                <i class="fa-solid fa-arrows-left-right"></i>身體晃動程度
+              </div>
+              <div class="sway-panel active" id="sway-low">
+                <div
+                  class="gait-big-val"
+                  style="
+                    font-size: 1.5rem;
+                    font-family: &quot;Noto Sans TC&quot;, sans-serif;
+                  "
+                >
+                  輕微
+                </div>
+                <div class="sway-track">
+                  <div class="sway-seg s-low"></div>
+                  <div class="sway-seg"></div>
+                  <div class="sway-seg"></div>
+                </div>
+                <div class="sway-labels">
+                  <span class="sl-low">輕微 ✓</span><span>中</span
+                  ><span>高</span>
+                </div>
+                <div class="gait-pill good">
+                  <i class="fa-solid fa-circle-check"></i>良好
+                </div>
+                <div class="gait-desc">
+                  行走時身體晃動幅度輕微，表示動態平衡與核心穩定度良好，建議持續進行平衡訓練（如太極、瑜伽），以維持現有表現。
+                </div>
+              </div>
+              <div class="sway-panel" id="sway-medium">
+                <div
+                  class="gait-big-val"
+                  style="
+                    font-size: 1.5rem;
+                    font-family: &quot;Noto Sans TC&quot;, sans-serif;
+                  "
+                >
+                  中
+                </div>
+                <div class="sway-track">
+                  <div class="sway-seg"></div>
+                  <div class="sway-seg s-medium"></div>
+                  <div class="sway-seg"></div>
+                </div>
+                <div class="sway-labels">
+                  <span>輕微</span><span class="sl-medium">中 ✓</span
+                  ><span>高</span>
+                </div>
+                <div class="gait-pill warning">
+                  <i class="fa-solid fa-triangle-exclamation"></i>需注意
+                </div>
+                <div class="gait-desc">
+                  行走時身體晃動達中等程度，顯示平衡控制有待加強，建議每日進行
+                  10～15 分鐘的下肢肌力與平衡訓練，並留意行走環境的安全性。
+                </div>
+              </div>
+              <div class="sway-panel" id="sway-high">
+                <div
+                  class="gait-big-val"
+                  style="
+                    font-size: 1.5rem;
+                    font-family: &quot;Noto Sans TC&quot;, sans-serif;
+                  "
+                >
+                  高
+                </div>
+                <div class="sway-track">
+                  <div class="sway-seg"></div>
+                  <div class="sway-seg"></div>
+                  <div class="sway-seg s-high"></div>
+                </div>
+                <div class="sway-labels">
+                  <span>輕微</span><span>中</span
+                  ><span class="sl-high">高 ✓</span>
+                </div>
+                <div class="gait-pill bad">
+                  <i class="fa-solid fa-circle-exclamation"></i>危險
+                </div>
+                <div class="gait-desc">
+                  行走時身體晃動幅度偏高，跌倒風險顯著上升，建議諮詢專業人員，進行專業平衡評估與復健介入，外出時應考慮使用輔助器具。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">行動建議與衛教資訊</div>
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title-icon">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <div>
+            <div class="ct-label"></div>
+            <div class="ct-title">下一步行動建議與衛教資訊</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-sub-title">
+            <i class="fa-solid fa-list-check"></i>行動建議
+          </div>
+
+          <div class="action-panel" id="panel-low2">
+            <div class="action-list">
+              <div class="action-item level-low2">
+                <div class="action-num">1</div>
+                <div>
+                  <div class="action-title">維持良好的日常活動</div>
+                  <div class="action-desc">
+                    目前步態表現優異，建議持續每日散步 30
+                    分鐘以上，維持肌力與心肺功能。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-low2">
+                <div class="action-num">2</div>
+                <div>
+                  <div class="action-title">定期自我健康檢測</div>
+                  <div class="action-desc">
+                    每 3 個月進行一次步態分析，追蹤身體機能變化，做到早期預防。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-low2">
+                <div class="action-num">3</div>
+                <div>
+                  <div class="action-title">參加社區健康促進課程</div>
+                  <div class="action-desc">
+                    可加入社區長者健康課程或舞蹈、太極等活動，增進社交互動與身體協調性。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-low2">
+                <div class="action-num">4</div>
+                <div>
+                  <div class="action-title">持續均衡飲食與補充營養</div>
+                  <div class="action-desc">
+                    攝取足夠蛋白質、鈣質與維生素
+                    D，鞏固骨骼與肌肉基礎，為長期健康提供支撐。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="action-panel" id="panel-low">
+            <div class="action-list">
+              <div class="action-item level-low">
+                <div class="action-num">1</div>
+                <div>
+                  <div class="action-title">開始預防性平衡訓練</div>
+                  <div class="action-desc">
+                    每日進行 10
+                    分鐘平衡練習，如扶椅站立、踮腳尖等，可有效提升穩定性。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-low">
+                <div class="action-num">2</div>
+                <div>
+                  <div class="action-title">參加社區健康促進課程</div>
+                  <div class="action-desc">
+                    可加入社區長者健康課程或健走、太極等活動，強化肌力與身體協調性。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-low">
+                <div class="action-num">3</div>
+                <div>
+                  <div class="action-title">檢視居家環境</div>
+                  <div class="action-desc">
+                    確認常用動線的照明與防滑狀況，浴室建議加裝扶手，減少潛在跌倒風險。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-low">
+                <div class="action-num">4</div>
+                <div>
+                  <div class="action-title">每 2 個月追蹤步態變化</div>
+                  <div class="action-desc">
+                    定期回測可即時察覺功能退化趨勢，提早介入避免風險等級上升。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="action-panel" id="panel-medium">
+            <div class="action-list">
+              <div class="action-item level-medium">
+                <div class="action-num">1</div>
+                <div>
+                  <div class="action-title">安排物理治療課程</div>
+                  <div class="action-desc">
+                    建議每週接受 1～2
+                    次物理治療，針對下肢肌力、平衡感與步態穩定進行系統訓練。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-medium">
+                <div class="action-num">2</div>
+                <div>
+                  <div class="action-title">考慮使用輔助器具</div>
+                  <div class="action-desc">
+                    外出時可依需求使用手杖或助行器，降低長途行走時的不穩定風險。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-medium">
+                <div class="action-num">3</div>
+                <div>
+                  <div class="action-title">進行居家安全改造</div>
+                  <div class="action-desc">
+                    浴室、走廊、床邊加裝扶手，移除地面障礙物，夜間保持足夠照明。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-medium">
+                <div class="action-num">4</div>
+                <div>
+                  <div class="action-title">前往家醫科進行評估</div>
+                  <div class="action-desc">
+                    請醫師全面審視目前慢性病用藥、視力與骨質狀況，排除可矯正的跌倒危險因子。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-medium">
+                <div class="action-num">5</div>
+                <div>
+                  <div class="action-title">每 4～6 週追蹤步態</div>
+                  <div class="action-desc">
+                    持續監測步態數據，調整訓練方向，確認介入成效。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="action-panel" id="panel-high">
+            <div class="action-list">
+              <div class="action-item level-high">
+                <div class="action-num">1</div>
+                <div>
+                  <div class="action-title">儘速安排醫療諮詢</div>
+                  <div class="action-desc">
+                    建議前往家醫科、復健科或尋求相關專業人員諮詢，進行全面的健康評估與防跌指導。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-high">
+                <div class="action-num">2</div>
+                <div>
+                  <div class="action-title">開始居家平衡訓練</div>
+                  <div class="action-desc">
+                    建議每週進行 2~3
+                    次基礎肌力訓練，可在家人或照護者在旁輔助下，練習安全簡單的坐姿抬腳等運動。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-high">
+                <div class="action-num">3</div>
+                <div>
+                  <div class="action-title">改善居家環境安全</div>
+                  <div class="action-desc">
+                    檢視浴室、走廊、床邊是否有扶手，移除地面障礙物，確保照明充足以降低跌倒風險。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-high">
+                <div class="action-num">4</div>
+                <div>
+                  <div class="action-title">定期回測追蹤進步</div>
+                  <div class="action-desc">
+                    建議每 4～6
+                    週回來進行一次步態分析，追蹤改善成效，及早調整訓練計畫。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="action-panel" id="panel-danger">
+            <div class="action-list">
+              <div class="action-item level-danger">
+                <div class="action-num">1</div>
+                <div>
+                  <div class="action-title">建議安排醫療評估</div>
+                  <div class="action-desc">
+                    請勿延誤，建議至醫院老年醫學科、家庭醫學科或復健科進行完整評估，確認潛在的衰弱原因與身體狀況。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-danger">
+                <div class="action-num">2</div>
+                <div>
+                  <div class="action-title">全天候使用輔助器具</div>
+                  <div class="action-desc">
+                    室內外行走均建議使用手杖或助行器，並告知家人目前狀況，避免獨自進行高風險活動。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-danger">
+                <div class="action-num">3</div>
+                <div>
+                  <div class="action-title">建議進行居家全面安全改造</div>
+                  <div class="action-desc">
+                    馬桶旁、浴缸旁、床邊、樓梯均需加裝扶手；移除所有地面障礙物（地毯、電線）；全室夜間保持夜燈照明。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-danger">
+                <div class="action-num">4</div>
+                <div>
+                  <div class="action-title">規劃專業復健療程</div>
+                  <div class="action-desc">
+                    建議由醫療、復健或運動指導專業人員評估後，依個人狀況安排合適的復健、肌力或步態訓練，避免自行進行高風險活動。
+                  </div>
+                </div>
+              </div>
+              <div class="action-item level-danger">
+                <div class="action-num">5</div>
+                <div>
+                  <div class="action-title">建立緊急聯絡機制</div>
+                  <div class="action-desc">
+                    設定緊急呼叫裝置或手機一鍵撥號，並告知家人或鄰居每日確認安全，避免跌倒後無人即時協助。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="card-sub-title">
+            <i class="fa-solid fa-heart-pulse"></i>衛教資訊
+            <div class="signal-title">本區內容目前為示意版本</div>
+          </div>
+          <div class="edu-list">
+            <div class="edu-item">
+              <div class="edu-icon">
+                <i class="fa-solid fa-shoe-prints"></i>
+              </div>
+              <div>
+                <div class="edu-title">穿著合適鞋具</div>
+                <div class="edu-desc">
+                  選擇防滑、包覆性佳的鞋子，避免穿拖鞋或高跟鞋外出，可有效減少跌倒發生。
+                </div>
+              </div>
+            </div>
+            <div class="edu-item">
+              <div class="edu-icon"><i class="fa-solid fa-pills"></i></div>
+              <div>
+                <div class="edu-title">定期審視用藥</div>
+                <div class="edu-desc">
+                  部分藥物可能影響平衡感與反應力，請定期與醫師討論目前用藥是否需要調整。
+                </div>
+              </div>
+            </div>
+            <div class="edu-item">
+              <div class="edu-icon">
+                <i class="fa-solid fa-apple-whole"></i>
+              </div>
+              <div>
+                <div class="edu-title">均衡營養補充</div>
+                <div class="edu-desc">
+                  攝取足夠的鈣質、維生素 D
+                  與蛋白質，有助於維持骨骼強度與肌肉量，降低骨折風險。
+                </div>
+              </div>
+            </div>
+            <div class="edu-item">
+              <div class="edu-icon"><i class="fa-solid fa-eye"></i></div>
+              <div>
+                <div class="edu-title">定期視力檢查</div>
+                <div class="edu-desc">
+                  視力退化是跌倒的重要風險因子之一，建議每年進行視力檢查，確認眼鏡度數是否合適。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="closing">
+            <i class="fa-solid fa-circle-info" style="margin-right: 6px"></i>
+            本報告由 FongAI
+            步態分析系統自動產生，僅供健康參考使用，不作為醫療診斷依據。如有任何疑問，請洽專業醫療人員進行進一步評估。感謝您使用
+            FongAI 健康服務，祝您身體健康、步伐穩健！
+          </div>
+
+          <!-- <div class="email-block">
+            <div class="email-block-title">
+              <i class="fa-solid fa-envelope"></i>將報告寄送至您的信箱
+            </div>
+            <div class="email-block-desc">
+              輸入您的 Email，我們將把這份步態分析報告寄送給您。
+            </div>
+            <div class="email-input-row">
+              <input
+                type="email"
+                id="reportEmail"
+                class="email-input"
+                placeholder="example@email.com"
+              />
+              <button class="email-send-btn" onclick="sendReportEmail()">
+                <i class="fa-solid fa-paper-plane"></i>寄送報告
+              </button>
+            </div>
+            <div class="email-status" id="emailStatus"></div>
+          </div> -->
+        </div>
+      </div>
+
+      <div class="campaign-card" id="campaignCard">
+        <div class="card-sub-title">
+          <i class="fa-solid fa-heart-pulse"></i>衛教資訊
+          <div class="signal-title">本區內容目前為示意版本</div>
+        </div>
+        <div class="campaign-head">
+          <div class="campaign-icon">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <div class="campaign-head-text">
+            <span class="campaign-tag">最新消息</span>
+            <h3 class="campaign-title" id="campaignTitle">載入中…</h3>
+          </div>
+        </div>
+        <div class="campaign-divider"></div>
+        <div class="campaign-content" id="campaignContent">載入中…</div>
+      </div>
+    </div>
+
+    <script>
+      /* ── 儲存時效倒數計時（檢測日期 + 1 天） ── */
+
+      let expireTime = null;
+      let countdownTimer = null;
+
+      function showExpiredPage() {
+        document.body.innerHTML = `
+    <div class="expired-page">
+      <div class="expired-card">
+        <div class="expired-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+        <div class="expired-title">此報告已過期</div>
+       
+      </div>
+    </div>
+  `;
+      }
+
+      function showUnauthorizedPage() {
+        document.body.innerHTML = `
+    <div class="expired-page">
+      <div class="expired-card">
+        <div class="expired-icon"><i class="fa-solid fa-lock"></i></div>
+        <div class="expired-title">您沒有訪問權限</div>
+        
+      </div>
+    </div>
+  `;
+      }
+
+      function updateCountdown() {
+        if (expireTime === null) return;
+
+        const heroEl = document.getElementById("heroCountdown");
+        const modalEl = document.getElementById("modalCountdown");
+        const heroWrap = document.querySelector(
+          ".hero-save-btn .btn-countdown",
+        );
+        const modalWrap = document.getElementById("modalExpire");
+
+        let diff = expireTime - Date.now();
+
+        if (diff <= 0) {
+          if (heroEl) heroEl.textContent = "已過期";
+          if (modalEl) modalEl.textContent = "已過期";
+          if (heroWrap) heroWrap.classList.add("expired");
+          if (modalWrap) modalWrap.classList.add("expired");
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          showExpiredPage();
+          return;
+        }
+
+        const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+        diff -= days * 24 * 60 * 60 * 1000;
+        const hours = Math.floor(diff / (60 * 60 * 1000));
+        diff -= hours * 60 * 60 * 1000;
+        const minutes = Math.floor(diff / (60 * 1000));
+        diff -= minutes * 60 * 1000;
+        const seconds = Math.floor(diff / 1000);
+
+        const pad = (n) => String(n).padStart(2, "0");
+        const text =
+          (days > 0 ? days + " 天 " : "") +
+          pad(hours) +
+          ":" +
+          pad(minutes) +
+          ":" +
+          pad(seconds);
+
+        if (heroEl) heroEl.textContent = text;
+        if (modalEl) modalEl.textContent = text;
+      }
+
+      function startCountdown(examDateMs) {
+        expireTime = examDateMs + 24 * 60 * 60 * 1000;
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = setInterval(updateCountdown, 1000);
+        updateCountdown();
+      }
+
+      /* ── API 設定 ── */
+      const API_BASE_URL =
+        window.location.hostname === "localhost"
+          ? window.location.origin
+          : "https://service.fongai.co";
+
+      function getExamTokenFromUrl() {
+        const token = new URLSearchParams(window.location.search).get("token");
+        return token ? token.trim() : "";
+      }
+
+      const genderMap = { 1: "男性", 0: "女性" };
+
+      const riskLevelMap = {
+        0: "low2",
+        1: "low",
+        2: "medium",
+        3: "high",
+        4: "danger",
+      };
+
+      function formatDateFromTimestamp(ms) {
+        const date = new Date(ms);
+        if (Number.isNaN(date.getTime())) return "—";
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}.${m}.${d}`;
+      }
+
+      function formatSpeed(speed) {
+        const rounded = Math.round(speed * 100) / 100;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+      }
+
+      /** 偏移角度：取絕對值，整數不帶小數，其餘取到小數點後一位 */
+      function formatOffsetAngle(offset) {
+        const n = Math.abs(Number(offset));
+        if (!Number.isFinite(n)) return "—";
+        const rounded = Math.round(n * 10) / 10;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+      }
+
+      function showApiError(message) {
+        const banner = document.getElementById("apiErrorBanner");
+        const text = document.getElementById("apiErrorMessage");
+        if (!banner || !text) return;
+        text.textContent = message;
+        banner.classList.add("show");
+      }
+
+      function hideApiError() {
+        const banner = document.getElementById("apiErrorBanner");
+        if (banner) banner.classList.remove("show");
+      }
+
+      function renderProfile(profile, examDate) {
+        document.getElementById("profileName").textContent =
+          profile?.name ?? "—";
+        document.getElementById("profileGender").textContent =
+          genderMap[profile?.gender] ?? "—";
+        document.getElementById("profileBirth").textContent =
+          formatDateFromTimestamp(profile?.birth);
+        const formattedExamDate = formatDateFromTimestamp(examDate);
+        document.getElementById("profileExamDate").textContent =
+          formattedExamDate;
+        document.getElementById("heroExamDate").textContent = formattedExamDate;
+      }
+
+      function getSppbScore(speed) {
+        if (speed > 83) return 4;
+        if (speed >= 65) return 3;
+        if (speed >= 46) return 2;
+        return 1;
+      }
+
+      function applySppb(score) {
+        const container = document.getElementById("sppbGaitItem");
+        container
+          .querySelectorAll(".sppb-panel")
+          .forEach((panel) => panel.classList.remove("active"));
+        const panel = document.getElementById("sppb-" + score);
+        if (panel) panel.classList.add("active");
+      }
+
+      function renderSpeed(speed) {
+        const score = getSppbScore(speed);
+        applySppb(score);
+
+        const speedText = formatSpeed(speed);
+        const speedValEl = document.getElementById("sppbSpeedVal");
+        if (score === 4) {
+          speedValEl.innerHTML = speedText + '<span class="unit">cm/s</span>';
+        }
+
+        const descEl = document.getElementById("sppbDesc-" + score);
+        if (!descEl) return;
+
+        if (score === 4) {
+          descEl.textContent =
+            "步行速度 " +
+            speedText +
+            " cm/s，達到 SPPB 滿分（4分）標準（> 83 cm/s），代表下肢肌力與協調能力良好，建議維持每日至少 30 分鐘的規律步行習慣。";
+        } else if (score === 3) {
+          descEl.textContent =
+            "SPPB 3分：您的測量值為 " +
+            speedText +
+            " cm/s（標準範圍 65～83 cm/s），下肢功能略有下降。建議增加日常步行量，並每週進行 2～3 次輕度肌力訓練，如深蹲、踮腳尖等動作。";
+        } else if (score === 2) {
+          descEl.textContent =
+            "SPPB 2分：您的測量值為 " +
+            speedText +
+            " cm/s（標準範圍 46～64 cm/s），顯示下肢功能明顯退化。建議諮詢專業人員，進行評估與步態訓練，同時檢視居家環境安全。";
+        } else {
+          descEl.textContent =
+            "SPPB 1分：您的測量值為 " +
+            speedText +
+            " cm/s（低於 46 cm/s），建議就醫評估，進行專業復健介入，外出時應使用輔助器具，以確保安全。";
+        }
+      }
+
+      function getSwayLevel(leftOffset, rightOffset) {
+        const swayDegree =
+          Math.abs(Number(leftOffset)) + Math.abs(Number(rightOffset));
+        if (swayDegree < 4.0) return "low";
+        if (swayDegree < 7.0) return "medium";
+        return "high";
+      }
+
+      function getBalanceStatus(left, right) {
+        const swayDegree =
+          Math.abs(parseFloat(left) || 0) + Math.abs(parseFloat(right) || 0);
+        if (swayDegree < 4.0) {
+          return {
+            title: "輕微搖晃",
+            desc: "身體保持穩定，僅有自然小幅晃動，重心維持於安全範圍",
+            icon: "✓",
+            className: "balance-status good",
+            illustration: "assets/balance_status_good.png",
+          };
+        } else if (swayDegree < 7.0) {
+          return {
+            title: "中度搖晃",
+            desc: "身體出現明顯左右晃動，重心移動範圍增加，需要注意平衡能力",
+            icon: "⚠",
+            className: "balance-status warn",
+            illustration: "assets/balance_status_warn.png",
+          };
+        } else {
+          return {
+            title: "危險搖晃",
+            desc: "身體大幅度晃動，重心偏移明顯，平衡能力下降，跌倒風險提高",
+            icon: "⚠",
+            className: "balance-status danger",
+            illustration: "assets/balance_status_danger.png",
+          };
+        }
+      }
+
+      function applySway(level) {
+        const container = document.getElementById("swayGaitItem");
+        container
+          .querySelectorAll(".sway-panel")
+          .forEach((panel) => panel.classList.remove("active"));
+        const panel = document.getElementById("sway-" + level);
+        if (panel) panel.classList.add("active");
+      }
+
+      function renderSway(leftOffset, rightOffset) {
+        const level = getSwayLevel(leftOffset, rightOffset);
+        applySway(level);
+      }
+
+      function renderRisk(riskLevel) {
+        const level = riskLevelMap[riskLevel];
+        if (!level) {
+          showApiError(
+            "無法辨識的風險等級資料（riskLevel: " + riskLevel + "）",
+          );
+          return;
+        }
+        switchRiskLevel(level);
+        switchTab(level);
+      }
+
+      function buildBodyHTML(leftRaw, rightRaw, uid) {
+        const status = getBalanceStatus(leftRaw, rightRaw);
+        return `
+<div class="balance-card balance-card-simple">
+  <h3 class="balance-card-title">您的行動力狀態</h3>
+  <div class="balance-illustration">
+    <img src="${status.illustration}" alt="平衡狀況示意圖" class="balance-illustration-img" />
+  </div>
+  <div class="balance-status-row ${status.className}">
+    <div class="balance-status-copy">
+      <div class="balance-status-title">${status.title}</div>
+      <p class="balance-status-desc">${status.desc}</p>
+    </div>
+  </div>
+</div>`;
+      }
+
+      function renderStickFigure(payload) {
+        const leftRaw = payload.data.leftOffset;
+        const rightRaw = payload.data.rightOffset;
+        const uid = "kiosk";
+
+        const container = document.getElementById("stickFigureContainer");
+        if (container) {
+          container.innerHTML = buildBodyHTML(leftRaw, rightRaw, uid);
+        }
+      }
+
+      function renderNews(news) {
+        const card = document.getElementById("campaignCard");
+        if (!card) return;
+        if (!news) {
+          card.style.display = "none";
+          return;
+        }
+        document.getElementById("campaignTitle").textContent =
+          news.title ?? "—";
+        document.getElementById("campaignContent").textContent =
+          news.content ?? "";
+      }
+
+      function renderReport(payload) {
+        const profile = payload?.profile;
+        const examData = payload?.data;
+        if (!profile || !examData) {
+          showUnauthorizedPage();
+          return;
+        }
+        renderProfile(profile, examData.date);
+        renderRisk(examData.riskLevel);
+        renderSpeed(examData.speed);
+        renderSway(examData.leftOffset, examData.rightOffset);
+        renderStickFigure(payload);
+        renderNews(payload?.news);
+        startCountdown(examData.date);
+      }
+
+      async function loadExamData() {
+        const token = getExamTokenFromUrl();
+        if (!token) {
+          showUnauthorizedPage();
+          return;
+        }
+
+        const url = `${API_BASE_URL}/AllInOneAPI/App/exam/get/${token}`;
+
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            showUnauthorizedPage();
+            return;
+          }
+
+          const result = await response.json();
+          if (!result.success) {
+            showUnauthorizedPage();
+            return;
+          }
+
+          hideApiError();
+          renderReport(result.data);
+        } catch (error) {
+          showApiError(
+            error.message || "網路連線失敗，無法取得報告資料，請稍後再試。",
+          );
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadExamData);
+
+      /* ── 風險等級設定 ── */
+      const riskConfig = {
+        low2: {
+          label: "目前風險等級：低風險",
+          color: "var(--color-low2)",
+          badgeBg: "#f0fff4",
+          badgeBorder: "#86efac",
+          indicatorLeft: "10%",
+          labelId: "rlbl-low2",
+        },
+        low: {
+          label: "目前風險等級：稍低風險",
+          color: "var(--color-low)",
+          badgeBg: "#f0ffe0",
+          badgeBorder: "#a3e635",
+          indicatorLeft: "30%",
+          labelId: "rlbl-low",
+        },
+        medium: {
+          label: "目前風險等級：中度風險",
+          color: "var(--color-medium)",
+          badgeBg: "#fffbeb",
+          badgeBorder: "#fde68a",
+          indicatorLeft: "50%",
+          labelId: "rlbl-medium",
+        },
+        high: {
+          label: "目前風險等級：高風險",
+          color: "var(--color-high)",
+          badgeBg: "#fff7ed",
+          badgeBorder: "#fed7aa",
+          indicatorLeft: "70%",
+          labelId: "rlbl-high",
+        },
+        danger: {
+          label: "目前風險等級：危險",
+          color: "var(--color-danger)",
+          badgeBg: "#fef2f2",
+          badgeBorder: "#fecaca",
+          indicatorLeft: "90%",
+          labelId: "rlbl-danger",
+        },
+      };
+
+      function switchRiskLevel(level) {
+        const cfg = riskConfig[level];
+        if (!cfg) return;
+
+        /* badge 更新 */
+        const row = document.getElementById("riskBadgeRow");
+        row.style.background = cfg.badgeBg;
+        row.style.borderColor = cfg.badgeBorder;
+        document.getElementById("riskBadgeIcon").style.background = cfg.color;
+        document.getElementById("riskBadgeTitle").textContent = cfg.label;
+
+        /* 色條 active */
+        document
+          .querySelectorAll(".risk-seg")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById("rseg-" + level).classList.add("active");
+
+        /* labels active */
+        document
+          .querySelectorAll(".risk-labels span")
+          .forEach((s) => s.classList.remove("active-label"));
+        document.getElementById(cfg.labelId).classList.add("active-label");
+
+        /* 指針位置與顏色 */
+        const indicator = document.getElementById("riskIndicator");
+        const pill = document.getElementById("riskIndicatorPill");
+        const arrow = document.getElementById("riskIndicatorArrow");
+        indicator.style.left = cfg.indicatorLeft;
+        pill.style.background = cfg.color;
+        arrow.style.color = cfg.color;
+      }
+
+      function closeModal() {
+        document.getElementById("saveModal").classList.remove("show");
+      }
+
+      function isInAppBrowser() {
+        const ua = navigator.userAgent || "";
+        return /Line/i.test(ua);
+      }
+
+      async function saveReport() {
+        if (isInAppBrowser()) {
+          const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+          const hint = isIOS
+            ? "請點擊右上角「⋯」選單，選擇「在 Safari 中開啟」後再試一次"
+            : "請點擊右上角「⋯」選單，選擇「在 Chrome 中開啟」後再試一次";
+          alert("為了順利儲存報告圖片，" + hint);
+          return;
+        }
+
+        closeModal();
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+
+        let newTab = null;
+        if (isIOS) {
+          newTab = window.open("", "_blank");
+          if (newTab) {
+            newTab.document.write(`
+        <html>
+          <head><title>報告圖片</title></head>
+          <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;font-family:sans-serif;color:#333;">
+            <p>圖片產生中，請稍候…</p>
+          </body>
+        </html>
+      `);
+          }
+        }
+
+        try {
+          const canvas = await html2canvas(document.body, {
+            useCORS: true,
+            scale: 2,
+            backgroundColor: "#ffffff",
+          });
+
+          const fileName = `步態分析報告_${formatDateFromTimestamp(Date.now())}.png`;
+
+          if (isAndroid) {
+            const link = document.createElement("a");
+            link.download = fileName;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+          } else if (isIOS) {
+            const dataUrl = canvas.toDataURL("image/png");
+            if (newTab) {
+              newTab.document.open();
+              newTab.document.write(`
+          <html>
+            <head>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>報告圖片</title>
+            </head>
+            <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;">
+              <div style="text-align:center;padding:20px;">
+                <p style="font-family:sans-serif;color:#333;margin-bottom:16px;font-size:24px;font-weight:700;line-height:1.5;">
+                  長按下方圖片，選擇「儲存圖片」即可存到相簿
+                </p>
+                <img src="${dataUrl}" style="max-width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);" />
+              </div>
+            </body>
+          </html>
+        `);
+              newTab.document.close();
+            } else {
+              alert("無法開啟新視窗，請確認瀏覽器未封鎖彈出視窗");
+            }
+          } else {
+            const link = document.createElement("a");
+            link.download = fileName;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+          }
+        } catch (err) {
+          console.error("儲存報告失敗:", err);
+          if (newTab) {
+            newTab.document.write(
+              '<p style="font-family:sans-serif;padding:20px;">產生圖片失敗，請關閉此頁重試</p>',
+            );
+          } else {
+            alert("儲存失敗：" + (err.message || err.toString()));
+          }
+        }
+      }
+      function triggerSave() {
+        document.getElementById("saveModal").classList.add("show");
+      }
+
+      function switchTab(level) {
+        document
+          .querySelectorAll(".action-panel")
+          .forEach((p) => p.classList.remove("active"));
+        const panel = document.getElementById("panel-" + level);
+        if (panel) panel.classList.add("active");
+      }
+
+      function sendReportEmail() {
+        const input = document.getElementById("reportEmail");
+        const status = document.getElementById("emailStatus");
+        const email = input.value.trim();
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+          status.textContent = "請輸入 Email 地址。";
+          status.className = "email-status err";
+          return;
+        }
+        if (!re.test(email)) {
+          status.textContent = "Email 格式不正確，請重新輸入。";
+          status.className = "email-status err";
+          return;
+        }
+        status.textContent = "✓ 報告已寄送至 " + email + "，請記得查收信箱！";
+        status.className = "email-status ok";
+        input.value = "";
+      }
+    </script>
+    <div
+      style="
+        position: fixed;
+        bottom: 2px;
+        right: 2px;
+        font-size: 9px;
+        color: #ccc;
+        z-index: 1;
+        pointer-events: none;
+      "
+    >
+      v: <span id="buildVersionDisplay"></span>
+    </div>
+    <script>
+      document.getElementById("buildVersionDisplay").textContent =
+        document.querySelector('meta[name="build-version"]').content;
+    </script>
+  </body>
+</html>
