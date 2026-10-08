@@ -2186,6 +2186,12 @@
       let expireTime = null;
       let countdownTimer = null;
 
+      /* 本機開發環境：略過過期判斷（不影響 API_BASE_URL） */
+      const IS_LOCAL =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.protocol === "file:";
+
       function showExpiredPage() {
         document.body.innerHTML = `
     <div class="expired-page">
@@ -2255,6 +2261,14 @@
       }
 
       function startCountdown(examDateMs) {
+        if (IS_LOCAL) {
+          console.log("[DEV] 本機環境，已略過過期判斷");
+          const heroEl = document.getElementById("heroCountdown");
+          const modalEl = document.getElementById("modalCountdown");
+          if (heroEl) heroEl.textContent = "開發模式";
+          if (modalEl) modalEl.textContent = "開發模式";
+          return;
+        }
         expireTime = examDateMs + 24 * 60 * 60 * 1000;
         if (countdownTimer) clearInterval(countdownTimer);
         countdownTimer = setInterval(updateCountdown, 1000);

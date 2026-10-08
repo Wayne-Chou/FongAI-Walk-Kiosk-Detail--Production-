@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="build-version" content="20260922-170240" />
+    <meta name="build-version" content="20261008-163429" />
     <title>步態分析詳細報告</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;700&display=swap"
@@ -2255,6 +2255,10 @@
       }
 
       function startCountdown(examDateMs) {
+        if (IS_LOCAL) {
+          console.log("[DEV] 本機環境，已略過過期判斷");
+          return;
+        }
         expireTime = examDateMs + 24 * 60 * 60 * 1000;
         if (countdownTimer) clearInterval(countdownTimer);
         countdownTimer = setInterval(updateCountdown, 1000);
@@ -2262,10 +2266,13 @@
       }
 
       /* ── API 設定 ── */
-      const API_BASE_URL =
-        window.location.hostname === "localhost"
-          ? window.location.origin
-          : "https://service.fongai.co";
+      const IS_LOCAL =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.protocol === "file:";
+      const API_BASE_URL = IS_LOCAL
+        ? window.location.origin
+        : "https://service.fongai.co";
 
       function getExamTokenFromUrl() {
         const token = new URLSearchParams(window.location.search).get("token");
