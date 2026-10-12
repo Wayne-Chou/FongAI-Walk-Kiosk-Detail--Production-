@@ -37,7 +37,7 @@ const MOCK_EXAM_RESPONSE = {
       birth: 787593600000,
     },
     data: {
-      speed: 100.05,
+      speed: 20,
       leftOffset: -1.758,
       rightOffset: 3.311,
       risk: 12.418,
