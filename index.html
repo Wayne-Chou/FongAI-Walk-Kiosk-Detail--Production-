@@ -2286,6 +2286,11 @@
         return token ? token.trim() : "";
       }
 
+      /** 訪客模式判斷：token  */
+      function isGuestToken(token) {
+        return token.startsWith("g-");
+      }
+
       const genderMap = { 1: "男性", 0: "女性" };
 
       const riskLevelMap = {
@@ -2345,9 +2350,10 @@
         if (banner) banner.classList.remove("show");
       }
 
-      function renderProfile(profile, examDate) {
-        document.getElementById("profileName").textContent =
-          profile?.name ?? "—";
+      function renderProfile(profile, examDate, isGuest) {
+        document.getElementById("profileName").textContent = isGuest
+          ? "訪客"
+          : (profile?.name ?? "—");
         document.getElementById("profileGender").textContent =
           genderMap[profile?.gender] ?? "—";
         const age = getAge(profile?.birth);
@@ -2516,14 +2522,14 @@
           news.content ?? "";
       }
 
-      function renderReport(payload) {
+      function renderReport(payload, isGuest) {
         const profile = payload?.profile;
         const examData = payload?.data;
         if (!profile || !examData) {
           showUnauthorizedPage();
           return;
         }
-        renderProfile(profile, examData.date);
+        renderProfile(profile, examData.date, isGuest);
         renderRisk(examData.riskLevel);
         renderSpeed(examData.speed);
         renderSway(examData.leftOffset, examData.rightOffset);
@@ -2539,7 +2545,16 @@
           return;
         }
 
-        const url = `${API_BASE_URL}/AllInOneAPI/App/exam/get/${token}`;
+        const isGuest = isGuestToken(token);
+        const apiToken = isGuest ? token.slice(2) : token;
+        if (!apiToken) {
+          showUnauthorizedPage();
+          return;
+        }
+
+        const url = isGuest
+          ? `${API_BASE_URL}/AllInOneAPI/App/guest/exam/get/${apiToken}`
+          : `${API_BASE_URL}/AllInOneAPI/App/exam/get/${apiToken}`;
 
         try {
           const response = await fetch(url);
@@ -2555,7 +2570,7 @@
           }
 
           hideApiError();
-          renderReport(result.data);
+          renderReport(result.data, isGuest);
         } catch (error) {
           showApiError(
             error.message || "網路連線失敗，無法取得報告資料，請稍後再試。",

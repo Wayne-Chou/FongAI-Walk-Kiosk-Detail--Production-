@@ -52,6 +52,33 @@ const MOCK_EXAM_RESPONSE = {
   },
 };
 
+/** 訪客 API 的假資料：profile.name 故意填非「訪客」字樣，用來驗證前端有正確覆蓋成「訪客」顯示 */
+const MOCK_GUEST_EXAM_RESPONSE = {
+  success: true,
+  errorCode: "",
+  message: "",
+  data: {
+    profile: {
+      name: "guest-api-original-name",
+      gender: 0,
+      birth: 662688000000,
+    },
+    data: {
+      speed: 72.3,
+      leftOffset: 2.1,
+      rightOffset: -1.9,
+      risk: 8.6,
+      riskLevel: 2,
+      date: 1789983273000,
+    },
+    news: {
+      title: "板橋衛生所 9 月運動課程",
+      content:
+        "上課時間：每週○上午 9:30－10:30\n上課地點：板橋衛生所 2 樓○○教室\n報名方式：請洽衛生所服務櫃檯\n或聯絡陳小姐 09XX-XXX-XXX",
+    },
+  },
+};
+
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
@@ -66,6 +93,16 @@ function sendHtml(res, statusCode, html) {
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
+
+  if (
+    req.method === "GET" &&
+    /^\/AllInOneAPI\/App\/guest\/exam\/get\/[^/]+$/.test(url.pathname)
+  ) {
+    const receivedToken = url.pathname.split("/").pop();
+    console.log("[mock] 訪客 API 收到 token：", receivedToken);
+    sendJson(res, 200, MOCK_GUEST_EXAM_RESPONSE);
+    return;
+  }
 
   if (
     req.method === "GET" &&
@@ -130,6 +167,12 @@ server.listen(PORT, () => {
   console.log("頁面：  http://localhost:" + PORT + "/?token=vlWpJM5G");
   console.log(
     "API：   http://localhost:" + PORT + "/AllInOneAPI/App/exam/get/vlWpJM5G",
+  );
+  console.log("訪客頁： http://localhost:" + PORT + "/?token=g-TEST01");
+  console.log(
+    "訪客API：http://localhost:" +
+      PORT +
+      "/AllInOneAPI/App/guest/exam/get/g-TEST01",
   );
   console.log("靜態： http://localhost:" + PORT + "/assets/");
   console.log("");
